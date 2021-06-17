@@ -22,12 +22,12 @@ class ShpFile(path : String, private val boundingBox: BoundingBox) {
     }
 
     private val coordinate by lazy {
-        ByteBuffer.allocateDirect(100 + size)
+        ByteBuffer.allocateDirect(100 + size + 8)
     }
 
     fun generateShpFile(polyLine : PolyLine){
         this.polyLine = polyLine
-        size = 44 + 8 +(4 * polyLine.Parts.size) + (16 * polyLine.Point.size)
+        size = 44 +(4 * polyLine.Parts.size) + (16 * polyLine.Point.size)
 
         generateCoordinate()
         writeShpFile()
@@ -37,7 +37,7 @@ class ShpFile(path : String, private val boundingBox: BoundingBox) {
         coordinate.put(header)
         coordinate.order(ByteOrder.BIG_ENDIAN)
         coordinate.putInt(1)
-        coordinate.putInt(size)
+        coordinate.putInt(size/2)
         coordinate.order(ByteOrder.LITTLE_ENDIAN)
         coordinate.putInt(polyLine!!.ShapeType)
         coordinate.putDouble(polyLine!!.Box.minX)
@@ -54,7 +54,7 @@ class ShpFile(path : String, private val boundingBox: BoundingBox) {
     }
 
     private fun writeShpFile(){
-        val mappedByteBuffer : MappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0,100L + size)
+        val mappedByteBuffer : MappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0,100L + size + 8)
         try {
             coordinate.position(0)
 

@@ -19,6 +19,7 @@ class ShxFile(path : String) {
 
     fun generateShxFile(polyLine : PolyLine){
         this.polyLine = polyLine
+        val size = 44 +(4 * polyLine.Parts.size) + (16 * polyLine.Point.size)
 
         val shxBuffer  = ByteBuffer.allocateDirect(100 + 8)
         val mappedByteBuffer : MappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 108L)
@@ -26,7 +27,7 @@ class ShxFile(path : String) {
             shxBuffer.position(0)
             shxBuffer.put(header)
             shxBuffer.putInt(50)
-            shxBuffer.putInt(48)
+            shxBuffer.putInt(size/2)
             shxBuffer.position(0)
             mappedByteBuffer.put(shxBuffer)
             fileChannel.write(mappedByteBuffer)

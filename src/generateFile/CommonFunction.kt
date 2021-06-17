@@ -1,5 +1,7 @@
 package generateFile
 
+import shapeType.BoundingBox
+import shapeType.Point
 import shapeType.PolyLine
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -24,6 +26,24 @@ class CommonFunction {
             header.putDouble(polyLine.Box.maxY)
             header.position(0)
             return header
+        }
+
+        fun generateBoundingBox(point: Array<Point>) : BoundingBox {
+            var minX = 99999999999.0
+            var maxX = -99999999999.0
+            var minY = 99999999999.0
+            var maxY = -99999999999.0
+            for(i in point){
+                if(i.x > maxX)
+                    maxX = i.x
+                if(i.x < minX)
+                    minX = i.x
+                if(i.y > maxY)
+                    maxY = i.y
+                if(i.y < minY)
+                    minY = i.y
+            }
+            return BoundingBox(minX, maxX, minY, maxY)
         }
     }
 }

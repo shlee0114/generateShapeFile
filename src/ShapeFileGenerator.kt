@@ -52,8 +52,8 @@ class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine
 fun main(){
     val shapeFileGenerator = ShapeFileGenerator(
         ShapeType.PolyLine, PolyLine(
-            ShapeType.PolyLine.type, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 3, intArrayOf(0), arrayListOf(
-        Point(-12.0, 12.0), Point(12.0, -12.0), Point(10.0, -5.0)
+            ShapeType.PolyLine.type, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 5, intArrayOf(0), arrayListOf(
+        Point(-12.0, 12.0), Point(12.0, -12.0), Point(10.0, -5.0), Point(-12.0, -12.0), Point(10.0, -5.0)
     ))
     )
     shapeFileGenerator.generate("D:\\test\\te","test")
