@@ -1,3 +1,7 @@
+package generateFile
+
+import shapeType.BoundingBox
+import shapeType.PolyLine
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -5,11 +9,17 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
-class ShxFile(private val path : String, private val header : ByteBuffer) {
+class ShxFile(path : String) {
     private val randomAccessFile : RandomAccessFile = RandomAccessFile(File(path), "rw")
     private var fileChannel : FileChannel = randomAccessFile.channel
+    private val header by lazy {
+        CommonFunction.generateHeader(54, ByteBuffer.allocateDirect(100), polyLine!!)
+    }
+    private var polyLine : PolyLine?=null
 
-    fun generateShxFile(){
+    fun generateShxFile(polyLine : PolyLine){
+        this.polyLine = polyLine
+
         val shxBuffer  = ByteBuffer.allocateDirect(100 + 8)
         val mappedByteBuffer : MappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 108L)
         try {
@@ -25,7 +35,8 @@ class ShxFile(private val path : String, private val header : ByteBuffer) {
             fileChannel.close()
             randomAccessFile.close()
             shxBuffer.clear()
-            header?.clear()
+            header.clear()
         }
     }
+
 }

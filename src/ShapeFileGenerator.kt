@@ -1,16 +1,45 @@
+import generateFile.ShpFile
+import generateFile.ShxFile
+import shapeType.BoundingBox
+import shapeType.Point
+import shapeType.PolyLine
+import shapeType.ShapeType
 import java.io.File
 
-class ShapeFileGenerator {
-    fun generate(shpPath : String){
-        val fileName = getFileNameNoExt(shpPath)
-        val shxPath = getFilePath(shpPath) + "/" + fileName + ".shx"
+class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine : PolyLine) {
+
+    private val boundingBox : BoundingBox by lazy {
+        generateBoundingBox()
+    }
+
+    fun generate(filePath : String, fileName : String){
+        val shxPath = "$filePath\\$fileName.shx"
+        val shpPath = "$filePath\\$fileName.shp"
         deleteFileWhenExists(File(shpPath))
         deleteFileWhenExists(File(shxPath))
 
-        val shp = ShpFile(shpPath, 3, BoundingBox(-12.0, 12.0, -12.0, 12.0))
-        shp.generateShpFile(PolyLine(3, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 3, intArrayOf(0), arrayListOf(Point(-12.0, 12.0), Point(12.0, -12.0), Point(5.0, -5.0))))
-        val shx = ShxFile(shxPath, shp.generateHeader())
-        shx.generateShxFile()
+        val shp = ShpFile(shpPath,boundingBox)
+        shp.generateShpFile(polyLine)
+        val shx = ShxFile(shxPath)
+        shx.generateShxFile(polyLine)
+    }
+
+    private fun generateBoundingBox() : BoundingBox {
+        var minX = 0.0
+        var maxX = 0.0
+        var minY = 0.0
+        var maxY = 0.0
+        for(i in polyLine.Point){
+            if(i.x > maxX)
+                maxX = i.x
+            if(i.x < minX)
+                minX = i.x
+            if(i.y > maxY)
+                maxY = i.y
+            if(i.y < minY)
+                minY = i.y
+        }
+        return BoundingBox(minX, maxX, minY, maxY)
     }
 
     private fun deleteFileWhenExists(file : File){
@@ -18,26 +47,15 @@ class ShapeFileGenerator {
             file.delete()
         }
     }
-
-    private fun getFileNameNoExt(pmFilename: String): String {
-        var pmFilename = pmFilename
-        var lmName = pmFilename
-        pmFilename = File(pmFilename).name
-        val lmIndex = pmFilename.lastIndexOf(46.toChar())
-        if (lmIndex >= 0) {
-            lmName = pmFilename.substring(0, lmIndex)
-        }
-        return lmName
-    }
-
-    private fun getFilePath(pmPath: String): String {
-        val lmFile = File(pmPath)
-        return if (lmFile.isDirectory) lmFile.path else lmFile.parent
-    }
 }
 
 fun main(){
-    val shapeFileGenerator = ShapeFileGenerator()
-    shapeFileGenerator.generate("D:\\test\\te\\test.shp")
+    val shapeFileGenerator = ShapeFileGenerator(
+        ShapeType.PolyLine, PolyLine(
+            ShapeType.PolyLine.type, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 3, intArrayOf(0), arrayListOf(
+        Point(-12.0, 12.0), Point(12.0, -12.0), Point(10.0, -5.0)
+    ))
+    )
+    shapeFileGenerator.generate("D:\\test\\te","test")
 
 }

@@ -1,3 +1,7 @@
+package generateFile
+
+import shapeType.BoundingBox
+import shapeType.PolyLine
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -5,21 +9,18 @@ import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
-class ShpFile(path : String, private val shapeType : Int, private val boundingBox: BoundingBox) {
+class ShpFile(path : String, private val boundingBox: BoundingBox) {
     private val randomAccessFile : RandomAccessFile = RandomAccessFile(File(path), "rw")
     private var fileChannel : FileChannel = randomAccessFile.channel
-
-    private val SHP_FILE_CODE = 0x0000270a
-    private val SHP_FILE_LENGTH by lazy {
-        (100 + size) / 2
-    }
-    private val SHP_FILE_VERSION = 1000
 
     private var size = 0
 
     private var polyLine : PolyLine?=null
 
-    private var header : ByteBuffer? = null
+    private val header by lazy {
+        CommonFunction.generateHeader((100 + size) / 2, ByteBuffer.allocateDirect(100), polyLine!!)
+    }
+
     private val coordinate by lazy {
         ByteBuffer.allocateDirect(100 + size)
     }
@@ -27,29 +28,9 @@ class ShpFile(path : String, private val shapeType : Int, private val boundingBo
     fun generateShpFile(polyLine : PolyLine){
         this.polyLine = polyLine
         size = 44 + 8 +(4 * polyLine.Parts.size) + (16 * polyLine.Point.size)
-        generateHeader()
+
         generateCoordinate()
         writeShpFile()
-    }
-
-    fun generateHeader() : ByteBuffer{
-        if(header != null)
-            return header!!
-        header = ByteBuffer.allocateDirect(100)
-        header!!.position(0)
-        header!!.order(ByteOrder.BIG_ENDIAN)
-        header!!.putInt(SHP_FILE_CODE)
-        header!!.position(header!!.position() + 20)
-        header!!.putInt(SHP_FILE_LENGTH)
-        header!!.order(ByteOrder.LITTLE_ENDIAN)
-        header!!.putInt(SHP_FILE_VERSION)
-        header!!.putInt(shapeType)
-        header!!.putDouble(boundingBox.minX)
-        header!!.putDouble(boundingBox.minY)
-        header!!.putDouble(boundingBox.maxX)
-        header!!.putDouble(boundingBox.maxY)
-        header!!.position(0)
-        return header!!
     }
 
     private fun generateCoordinate(){
@@ -84,7 +65,7 @@ class ShpFile(path : String, private val shapeType : Int, private val boundingBo
             fileChannel.close()
             randomAccessFile.close()
             coordinate.clear()
-            header?.clear()
+            header.clear()
         }
     }
 }
