@@ -28,6 +28,23 @@ class CommonFunction {
             return header
         }
 
+        fun generateHeader(fileSize : Int, header : ByteBuffer, point: Point) : ByteBuffer{
+            header.position(0)
+            header.order(ByteOrder.BIG_ENDIAN)
+            header.putInt(SHAPE_FILE_CODE)
+            header.position(header.position() + 20)
+            header.putInt(fileSize)
+            header.order(ByteOrder.LITTLE_ENDIAN)
+            header.putInt(SHAPE_FILE_VERSION)
+            header.putInt(1)
+            header.putDouble(point.x)
+            header.putDouble(point.y)
+            header.putDouble(point.x)
+            header.putDouble(point.y)
+            header.position(0)
+            return header
+        }
+
         fun generateBoundingBox(point: Array<Point>) : BoundingBox {
             var minX = 99999999999.0
             var maxX = -99999999999.0

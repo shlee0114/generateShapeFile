@@ -2,15 +2,10 @@ import generateFile.ShpFile
 import generateFile.ShxFile
 import shapeType.BoundingBox
 import shapeType.Point
-import shapeType.PolyLine
 import shapeType.ShapeType
 import java.io.File
 
-class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine : PolyLine) {
-
-    private val boundingBox : BoundingBox by lazy {
-        generateBoundingBox()
-    }
+class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine : Point) {
 
     fun generate(filePath : String, fileName : String){
         val shxPath = "$filePath\\$fileName.shx"
@@ -18,28 +13,10 @@ class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine
         deleteFileWhenExists(File(shpPath))
         deleteFileWhenExists(File(shxPath))
 
-        val shp = ShpFile(shpPath,boundingBox)
+        val shp = ShpFile(shpPath)
         shp.generateShpFile(polyLine)
         val shx = ShxFile(shxPath)
         shx.generateShxFile(polyLine)
-    }
-
-    private fun generateBoundingBox() : BoundingBox {
-        var minX = 0.0
-        var maxX = 0.0
-        var minY = 0.0
-        var maxY = 0.0
-        for(i in polyLine.Point){
-            if(i.x > maxX)
-                maxX = i.x
-            if(i.x < minX)
-                minX = i.x
-            if(i.y > maxY)
-                maxY = i.y
-            if(i.y < minY)
-                minY = i.y
-        }
-        return BoundingBox(minX, maxX, minY, maxY)
     }
 
     private fun deleteFileWhenExists(file : File){
@@ -50,11 +27,14 @@ class ShapeFileGenerator(private val shapeType : ShapeType, private val polyLine
 }
 
 fun main(){
+   // val shapeFileGenerator = ShapeFileGenerator(
+   //     ShapeType.PolyLine, PolyLine(
+   //         ShapeType.PolyLine.type, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 5, intArrayOf(0), arrayListOf(
+   //     Point(-12.0, 12.0), Point(12.0, -12.0), Point(10.0, -5.0), Point(-12.0, -12.0), Point(10.0, -5.0)
+   // ))
+   // )
     val shapeFileGenerator = ShapeFileGenerator(
-        ShapeType.PolyLine, PolyLine(
-            ShapeType.PolyLine.type, BoundingBox(-12.0, 12.0, -12.0, 12.0), 1, 5, intArrayOf(0), arrayListOf(
-        Point(-12.0, 12.0), Point(12.0, -12.0), Point(10.0, -5.0), Point(-12.0, -12.0), Point(10.0, -5.0)
-    ))
+        ShapeType.Point, Point(12.3, 13.2)
     )
     shapeFileGenerator.generate("D:\\test\\te","test")
 
